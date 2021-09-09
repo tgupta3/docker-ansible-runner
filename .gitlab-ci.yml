@@ -1,5 +1,4 @@
-image: docker:8f71deccd0856d8a36db659a8c82894be97546b47c1817de27d5ee7eea860162
-
+image: docker@sha256:8f71deccd0856d8a36db659a8c82894be97546b47c1817de27d5ee7eea860162
 stages:
   - build
   - push

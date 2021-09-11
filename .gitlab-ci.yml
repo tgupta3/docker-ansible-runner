@@ -1,42 +1,39 @@
 image: docker@sha256:8f71deccd0856d8a36db659a8c82894be97546b47c1817de27d5ee7eea860162
 
 stages:
-  - test
   - build
+  - test
   - push
 
 services:
   - docker:dind
-  
+
+variables:
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA_test
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  CONTAINER_LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+
 before_script:
   - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-  
-Test:
-  stage: test
-  script:
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
-    - >
-      docker build
-      --pull
-      --cache-from $CI_REGISTRY_IMAGE:latest
-      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-      .
-    - chmod +x test.sh
-    - docker run -v ${PWD}/test.sh:/tmp/test.sh --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA /tmp/test.sh
 
 Build:
   stage: build
-  only:
-    - main
   script:
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - >
       docker build
       --pull
       --cache-from $CI_REGISTRY_IMAGE:latest
-      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      --tag $CONTAINER_TEST_IMAGE
       .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CONTAINER_TEST_IMAGE
+
+Test:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - chmod +x test.sh
+    - docker run -v ${PWD}/test.sh:/tmp/test.sh --rm $CONTAINER_TEST_IMAGE /tmp/test.sh
 
 Push latest:
   variables:
@@ -45,9 +42,11 @@ Push latest:
   only:
     - main
   script:
-    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_LATEST_IMAGE
+    - docker push $CONTAINER_LATEST_IMAGE
 
 Push tag:
   variables:
@@ -56,6 +55,6 @@ Push tag:
   only:
     - tags
   script:
-    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker pull $CONTAINER_RELEASE_IMAGE
+    - docker tag $CONTAINER_RELEASE_IMAGE $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME

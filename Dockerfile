@@ -27,7 +27,7 @@ RUN apk --update add --virtual \
         pip \
 && pip3 install \
         ansible==${ANSIBLE_VERSION} \
-&& ansible-galaxy install -r requirements.yml \
+&& ansible-galaxy install -r /tmp/requirements.yml \
 && apk del .build-deps \
 && rm -rf /var/cache/apk/* \
           /root/.cache/pip/ \

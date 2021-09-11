@@ -9,8 +9,8 @@ services:
   - docker:dind
 
 variables:
-  CONTAINER_TEST_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}_test
-  CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY_IMAG}E:${CI_COMMIT_SHA}
+  CONTAINER_TEST_IMAGE: ${CI_REGISTRY_IMAGE}/test:${CI_COMMIT_SHA}_test
+  CONTAINER_RELEASE_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
   CONTAINER_LATEST_IMAGE: ${CI_REGISTRY_IMAGE}:latest
 
 before_script:
@@ -29,6 +29,8 @@ Build:
     - docker push $CONTAINER_TEST_IMAGE
 
 Test:
+  variables:
+    GIT_STRATEGY: none
   stage: test
   script:
     - docker pull $CONTAINER_TEST_IMAGE

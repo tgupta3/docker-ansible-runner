@@ -29,8 +29,6 @@ Build:
     - docker push $CONTAINER_TEST_IMAGE
 
 Test:
-  variables:
-    GIT_STRATEGY: none
   stage: test
   script:
     - docker pull $CONTAINER_TEST_IMAGE

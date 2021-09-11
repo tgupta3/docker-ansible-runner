@@ -3,6 +3,8 @@ FROM alpine@sha256:e15947432b813e8ffa90165da919953e2ce850bef511a0ad1287d7cb86de8
 
 ENV ANSIBLE_VERSION=2.9.7
 
+COPY requirements.yml /tmp/
+
 RUN apk --update --no-cache add \
         ca-certificates \
         git \
@@ -25,7 +27,9 @@ RUN apk --update add --virtual \
         pip \
 && pip3 install \
         ansible==${ANSIBLE_VERSION} \
+&& ansible-galaxy install -r /tmp/requirements.yml \
 && apk del .build-deps \
 && rm -rf /var/cache/apk/* \
-          /root/.cache/pip/
+          /root/.cache/pip/ \
+          /tmp/requirements.yml
 

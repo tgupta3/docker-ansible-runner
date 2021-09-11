@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
-echo -e "\n>>> test: Fake"
-uname -a
+echo -e "\n>>> test: Ansible test"
+ansible --version

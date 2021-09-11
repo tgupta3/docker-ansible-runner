@@ -1,8 +1,31 @@
-# This file is a template, and might need editing before it works on your project.
-FROM centos@sha256:e4ca2ed0202e76be184e75fb26d14bf974193579039d5573fb2348664deef76e
+# alpine:3.13.6
+FROM alpine@sha256:e15947432b813e8ffa90165da919953e2ce850bef511a0ad1287d7cb86de84b5
 
+ENV ANSIBLE_VERSION=2.9.7
 
-# Edit with mysql-client, postgresql-client, sqlite3, etc. for your needs.
-# Or delete entirely if not needed.
-RUN yum update -y && yum install epel-release -y && yum install ansible pyyaml openssh -y && yum clean all
+RUN apk --update --no-cache add \
+        ca-certificates \
+        git \
+        openssh-client \
+        openssl \
+        python3\
+        py3-pip \
+        py3-cryptography \
+        rsync \
+        sshpass
+      
+RUN apk --update add --virtual \
+        .build-deps \
+        python3-dev \
+        libffi-dev \
+        openssl-dev \
+        build-base \
+        curl \
+&& pip3 install --upgrade \
+        pip \
+&& pip3 install \
+        ansible==${ANSIBLE_VERSION} \
+&& apk del .build-deps \
+&& rm -rf /var/cache/apk/* \
+          /root/.cache/pip/
 

@@ -1,6 +1,7 @@
 image: docker@sha256:8f71deccd0856d8a36db659a8c82894be97546b47c1817de27d5ee7eea860162
 
 stages:
+  - test
   - build
   - push
 
@@ -9,9 +10,23 @@ services:
   
 before_script:
   - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  
+Test:
+  stage: test
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - >
+      docker build
+      --pull
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - > docker run -v test.sh:/tmp/test.sh --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA /tmp/test.sh
 
 Build:
   stage: build
+  only:
+    - main
   script:
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - >

@@ -1,6 +1,8 @@
 # alpine:3.13.6
 FROM alpine@sha256:e15947432b813e8ffa90165da919953e2ce850bef511a0ad1287d7cb86de84b5
 
+ENV ANSIBLE_VERSION=2.9.7
+
 RUN apk --update --no-cache add \
         ca-certificates \
         git \
@@ -23,8 +25,7 @@ RUN apk --update add --virtual \
         pip \
 && pip3 install \
         ansible==${ANSIBLE_VERSION} \
-&& apk del \
-        .build-deps \
+&& apk del .build-deps \
 && rm -rf /var/cache/apk/* \
           /root/.cache/pip/
 

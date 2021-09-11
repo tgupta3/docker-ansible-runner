@@ -21,6 +21,7 @@ Test:
       --cache-from $CI_REGISTRY_IMAGE:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
       .
+    - chmod +x test.sh
     - docker run -v ${PWD}/test.sh:/tmp/test.sh --rm $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA /tmp/test.sh
 
 Build:

@@ -18,6 +18,8 @@ before_script:
 
 Build:
   stage: build
+  except:
+    - tags
   script:
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - >
@@ -30,6 +32,8 @@ Build:
 
 Test:
   stage: test
+  except:
+    - tags
   script:
     - docker pull $CONTAINER_TEST_IMAGE
     - chmod +x test.sh
